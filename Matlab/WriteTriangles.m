@@ -9,6 +9,9 @@ p1(1,185)
 
 %% Lijst van driehoek gebruiken om bestand aan te maken met als info: Driehoeknummer, Coordinaten van hoekpunten
 
+%triangles, edges, points: krijg je als data in je workspace door mesh te
+%genereren in PDE modeler en vervolgens te exporteren. 
+
 trianglePointIndices = triangles(1:3,:); %Nodig welke 3 punten verbonden worden
 edgesPointIndices = edges(1:2,:); %Enkel nodig welke 2 punten ze verbinden
 
@@ -17,7 +20,7 @@ AmountofPoints = length(points(1,:));
 ListOfIndexesPoints = 1:1:AmountofPoints;
 A_points = [ListOfIndexesPoints; points(1,:); points(2,:)];
 
-AmountofEdges = length(edges(1,:));
+AmountofEdges = length(edges(1,:)); %Dit zijn enkel de edges die op de rand van de figuur liggen. Niet alle edges van alle driehoeken.
 ListOfIndexesEdges = 1:1:AmountofEdges;
 A_edges = [ListOfIndexesEdges; edges(1,:); edges(2,:)];
 
