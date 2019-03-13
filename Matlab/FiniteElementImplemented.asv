@@ -15,8 +15,8 @@ e = example.e;
 
 %EXAMPLE: ORCHARD CONDITIONS:
 
-T=25+273.15;
-eta_u = 0.208;
+T=25;
+
 
 sigma_ur= 2.8*10^(-10);
 sigma_uz= 1.10*10^(-9);
@@ -24,9 +24,6 @@ sigma_vr= 2.32*10^(-9);
 sigma_vz= 6.97*10^(-9);
 
 rho_u=7*10^(-7);
-
-p_atm=101300;
-R_g= 8.314;
 
 Cu_amb = p_atm*eta_u/(R_g*T);
 
@@ -130,27 +127,24 @@ for edge_index=1:B %Let op daarin zitten alle edges, niet enkel Gamma2
     x2 = p(1,nodes(2)); y2 = p(2,nodes(2));
     
     %Checken of we wel degelijk te maken hebben met punt uit gamma2
-    KALIMBA=0;
+    
     if (x1 > 0.0017 && x2 > 0.0017) %Dan zitten we niet met een gamma1 edge
-        KALIMBA = 1;
         ke= sqrt((x2-x1)^2+(y2-y1)^2)*((x1/2)+x2/2)*(1/4)*rho_u;
-        Ku(nodes(1),nodes(2)) = Ku(nodes(1),nodes(2)) +ke; %Mogelijks niet juist, moet misschien wel aparte bijdrage zijn voor nodes.
+        Ku(nodes(1),nodes(2)) = Ku(nodes(1),nodes(2)) +ke;
         Ku(nodes(2),nodes(1)) = Ku(nodes(2),nodes(1)) +ke;
         
         %fu wordt ook zuiver behandeld door gamma2 dus we gaan die hier ook
         %bouwen:
-        fe= sqrt((x2-x1)^2+(y2-y1)^2)*((x1/2)+(x2/2))*(1/2)*rho_u*Cu_amb; %Of moeten we dit nog delen door 2 door midpoint regel?
+        fe= sqrt((x2-x1)^2+(y2-y1)^2)*((x1/2)+x2/2)*(1/2)*rho_u*Cu_amb;
 
-        Fu(nodes(1),1) = Fu(nodes(1),1) + fe;
-        Fu(nodes(2),1) = Fu(nodes(2),1) + fe;
+        Fu
+        Fu
     end
     %Berekening
     
     %Aanpassingen aan matrix Kuij: maar aan welke punten. Aa
     
 end
-
-%Niet-lineaire Hu berekenen: 
 
 
     
