@@ -15,14 +15,33 @@ e = example.e;
 
 %EXAMPLE: ORCHARD CONDITIONS:
 
+T_ref=294.15;
 T=25+273.15;
 eta_u = 0.208;
 eta_v =0.0004
 
+%DIFFUSIVITIES
 sigma_ur= 2.8*10^(-10);
 sigma_uz= 1.10*10^(-9);
 sigma_vr= 2.32*10^(-9);
 sigma_vz= 6.97*10^(-9);
+
+%RESPIRATION KINETIC PARAMTERS
+V_mu_ref=2.39*10^(-4);
+E_a_vmu_ref = 80200;
+V_mfv_ref= 1.61*10^(-4);
+E_a_vmfv_ref = 56700;
+
+%TO COPY IN CODE:
+V_mu=V_mu_ref*exp((E_a_vmu_ref/R_g)*((1/T_ref)-(1/T)))
+V_mfc=V_mfv_ref*exp((E_a_vmfv_ref/R_g)*((1/T_ref)-(1/T)))
+
+
+K_mu=0.4103;
+K_mv=27.2438;
+k_mfu=0.1149;
+
+r_q=0.97;
 
 rho_u=7*10^(-7);
 rho_v=7.5*10^(-7);
@@ -225,6 +244,7 @@ end
 Cu=Ku\Fu;
 %Kv*cv=fv
 Cv=Kv\Fv;
+
 
 %Niet-lineaire Hu berekenen: 
 
