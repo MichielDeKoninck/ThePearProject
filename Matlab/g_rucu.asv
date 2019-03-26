@@ -1,0 +1,18 @@
+function [g] = g_rucu(phi_nr,node1,node2,node3,ksi,eta,c_u,c_v)
+    phi_possibilities = [1-eta-ksi, ksi, eta];
+    phi=phi_possibilities(
+    c_u_coeff = c_u(node1)*(1-ksi-eta) + c_u(node2)*ksi + c_u(node3)*eta;
+    c_v_coeff = c_v(node1)*(1-ksi-eta) + c_v(node2)*ksi + c_v(node3)*eta; %Punt als lineaire combi van vorige
+    
+    
+end
+
+
+
+phi_list = [1-eta-ksi, ksi, eta];
+cv = c(n1+nb_vertices)*(1-ksi-eta) + c(n2+nb_vertices)*ksi + c(n3+nb_vertices)*eta; %Punt als lineaire combi van vorige
+cu = c(n1)*(1-ksi-eta) + c(n2)*ksi + c(n3)*eta; %Nieuwe concentratie als lineaire combi van vorige
+phi = phi_list(n_phi);
+B = (ve(n2,1)*ve(n3,2) + ve(n1,1)*ve(n2,2) + ve(n3,1)*ve(n1,2) - ve(n2,1)*ve(n1,2) - ve(n3,1)*ve(n2,2)- ve(n1,1)*ve(n3,2));
+dr = Vmu*Kmu/((1+cv/Kmv)*(Kmu+cu)^2);
+r = (ve(n1,1)*(1-eta-ksi)+ve(n2,1)*ksi+ve(n3,1)*eta)*dr*phi*B;

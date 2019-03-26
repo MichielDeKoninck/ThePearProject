@@ -88,7 +88,7 @@ for edge_index=1:E
     nodes = e(1:2,edge_index);
     x1 = p(1,nodes(1)); y1 = p(2,nodes(1)); %Coördinaten ophalen
     x2 = p(1,nodes(2)); y2 = p(2,nodes(2));
-    if (x1 > 0.0017 && x2 > 0.0017) %Dan zitten we niet met een gamma_1 edge
+    if (x1 > 0.0017 || x2 > 0.0017) %Dan zitten we niet met een gamma_1 edge
        %Adjustments to K:
        K_u(nodes,nodes) = K_u(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_u);
        K_v(nodes,nodes) = K_v(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_v);
@@ -99,7 +99,7 @@ for edge_index=1:E
     end
 end
 
-%% Linearisatie van Ru en Rv
+%% Linearisatie van Ru en Rv: bijdrage van gelineariseerde H
 Ku_copy = K_u;
 Kv_copy = K_v;
 Fu_copy = F_u;
@@ -116,17 +116,23 @@ for triangle_index=1:T
     x1 = triangleCoordinatesMatrix(1,1); y1 = triangleCoordinatesMatrix(1,2); 
     x2 = triangleCoordinatesMatrix(2,1); y2 = triangleCoordinatesMatrix(2,2); 
     x3 = triangleCoordinatesMatrix(3,1); y3 = triangleCoordinatesMatrix(3,2);
+    
     Fu_copy(nodes,1) = Fu_copy(nodes,1) + F_adjustment_Hu(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
     Ku_copy(nodes,nodes) = Ku_copy(nodes,nodes) + K_adjustment_Hu(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
     K_first_row_Cv(nodes,nodes) = K_first_row_Cv(nodes,nodes) + K_first_row_Cv_adjustment_Hu(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+    
     Fv_copy(nodes,1) = Fv_copy(nodes,1) + F_adjustment_Hv(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
     Kv_copy(nodes,nodes) = Kv_copy(nodes,nodes) + K_adjustment_Hv(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
     K_second_row_Cu(nodes,nodes) = K_second_row_Cu(nodes,nodes) + K_second_row_Cu_adjustment_Hv(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
 
 end
+%% Dus als je spy(K) doet, dan zien we dat in het 1e kwadrant en 3e kwadrant we teveel elementen hebben.
+%% We mogen namelijk enkel diagonaalelementen hebben daar en dus 2 schuine lijnen, maar op één of andere manier
+%% vullen we te veel elementen op. --> Aim: fix dit!! Fout zit in het opvullen van de K_second_row_Cu en K_first_row_Cv
 K = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
 f = [Fu_copy;Fv_copy];
 c0 = K\f;
+figure()
 plot(c0)
 %% Niet lineair stuk: Berekening u0 en v0 via linearisatie
 
@@ -145,15 +151,17 @@ plot(c0)
 
 
 %% Repetition 
-% % % % [c_u,c_v] = NewtonRaphson( F,J,c_u0,c_v0,5*10^(-11));
+
+%[c_u,c_v] = NewtonRaphson( F,J,c_u0,c_v0,5*10^(-11));
 
 %Newton-Raphson gebruiken tot convergentie:
+
 
 %% Plot 
 c_u=c0(1:2523);
 c_v=c0(2524:5046);
 
-c_u=c(1:2523);
-c_v=c(2524:5046);
+%c_u=c(1:2523);
+%c_v=c(2524:5046);
 
 PearPlot(p,e,t,c_u,c_v)
