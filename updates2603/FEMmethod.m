@@ -128,6 +128,7 @@ K = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
 f = [Fu_copy;Fv_copy];
 c0 = K\f;
 plot(c0)
+
 %% Niet lineair stuk: Berekening u0 en v0 via linearisatie
 
 %De Jacobiaan en F defini�ren zodat we newton rhapson kunnen doorvoeren
@@ -149,11 +150,9 @@ plot(c0)
 
 %Newton-Raphson gebruiken tot convergentie:
 
-%% Plot 
-c_u=c0(1:2523);
-c_v=c0(2524:5046);
 
-c_u=c(1:2523);
-c_v=c(2524:5046);
 
-PearPlot(p,e,t,c_u,c_v)
+
+
+
+
