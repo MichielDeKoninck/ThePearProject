@@ -59,7 +59,7 @@ M=size(p,2); %number of nodes
 T=size(t,2); %number of triangles
 B=size(e,2);
 
-% TODO spaarse implementatie zal waarschijnlijk voor meer efficiëntie
+% TODO spaarse implementatie zal waarschijnlijk voor meer efficiï¿½ntie
 % zorgen
 %Ku=sparse(M,M); %Onze K matrix, MxM (zal spaars worden ingevuld) 
 Ku=(zeros(M,M)); %Niet spaars
@@ -99,7 +99,7 @@ for triangle_index=1:T %integrate over one triangular element at a time
     
     checktotal= checknode1 + checknode2 + checknode3;
     
-    if(checktotal<2) %Dan heeft deze driehoek een edge als rand
+    if(checktotal<2) %Dan heeft deze driehoek geen edge als rand
         
     
         %Uiterlijk: [1 xcorner ycorner] en zo 3 rijen natuurlijk  
