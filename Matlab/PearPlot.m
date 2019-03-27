@@ -7,11 +7,11 @@ function PearPlot(p,e,t,c_u,c_v)
     %pdeplot(p,e,t);
     figure(1)
     %pdeplot(p,e,t,'XYData',c_u, 'colormap','jet')
-    pdeplot(p,e,t,'XYData',c_u, 'colormap','hsv')
+    pdeplot(p,e,t,'XYData',c_u, 'colormap','jet')
     title('c_u plot')
 
     figure(2)
-    pdeplot(p,e,t,'XYData',c_v, 'colormap','hsv')
+    pdeplot(p,e,t,'XYData',c_v, 'colormap','jet')
     title('c_v plot')
 
     %plot(c_u(1:2523));

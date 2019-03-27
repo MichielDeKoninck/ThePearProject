@@ -1,4 +1,5 @@
 %Finite-element method implementation
+
 %function FEM(condition)
     %% Constanten
     T_ref=293.15;
@@ -73,10 +74,21 @@
     %% Points en indices laden
     example = matfile('save_p.mat');
     p = example.p;
+    %example = matfile('save_p_smaller.mat');
+    %p = example.p_smaller;
+
+    
     example = matfile('save_t.mat');
     t = example.t;
+    %example = matfile('save_t_smaller.mat');
+    %t = example.t_smaller;
+    
+    
     example = matfile('save_e.mat');
     e = example.e;
+    %example = matfile('save_e_smaller.mat');
+    %e = example.e_smaller;
+
 
     %%  Creation of empty matrices
 
@@ -161,17 +173,18 @@
 
     end
     K = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
+    K_copy = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
     f = [Fu_copy;Fv_copy];
     c0 = K\f;  %% Deze klopt niet maar we gaan er ff mee verderwerken wegens tijdtekort.
     
     K = [K_u, zeros(M,M); zeros(M,M), K_v];%Reset K
-    c_u=c0(1:2523);
-    c_v=c0(2524:5046);
+    c_u=c0(1:M);
+    c_v=c0(M+1:2*M);
     figure()
     plot(c0)
     %% Niet lineair stuk - Jacobiaan en F bepalen: Newton-Rhapson
     
-    iteration_bound = 50;
+    iteration_bound = 10;
     c = c0; %begin concentraties instellen
     c = zeros(2*M,1);
     step = zeros(2*M,1); %Initialisatie van stap
@@ -263,12 +276,12 @@
     %Newton-Raphson gebruiken tot convergentie:
 
     %% Plot 
-    c_u=c0(1:2523);
-    c_v=c0(2524:5046);
+    c_u=c0(1:M);
+    c_v=c0(M+1:2*M);
 
-%     c_u=c(1:2523);
-%     c_v=c(2524:5046);
+%     c_u=c(1:M);
+%       c_v=c(M+1:2*M);
 
     PearPlot(p,e,t,c_u,c_v)
 
-%end
+% end

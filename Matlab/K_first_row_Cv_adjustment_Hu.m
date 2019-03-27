@@ -6,11 +6,16 @@ function [ K_add ] = K_first_row_Cv_adjustment_Hu( Ak,coordinatesMatrix,Vmu,Kmu,
    
     %In principe mag dit enkel aanpassingen doen op de diagonaal, dat is
     %niet het geval. HIER ZIT DUS "DE" FOUT.
-
-    Ke11 = -(Ak/24)*(2*x1 + x2 + x3)*((Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2));
-    Ke22 = -(Ak/24)*(x1 + 2*x2 + x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
-    Ke33 = -(Ak/24)*(x1 + x2 + 2*x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
     
+    Ke11 = -(Ak/18)*(x1 + x2 + x3)*((Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2));
+    Ke22 = -(Ak/18)*(x1 + x2 + x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
+    Ke33 = -(Ak/18)*(x1 + x2 + x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
+    
+
+%     Ke11 = -(Ak/24)*(2*x1 + x2 + x3)*((Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2));
+%     Ke22 = -(Ak/24)*(x1 + 2*x2 + x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
+%     Ke33 = -(Ak/24)*(x1 + x2 + 2*x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
+        
     %Ke12 = -(1/120)*(2*x1 + 2*x2 + x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
     %Ke13 = -(1/120)*(2*x1 + x2 + 2*x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
     %Ke23 = -(1/120)*(x1 + 2*x2 + 2*x3)*(Vmu*Cuamb)/((Kmv*(Kmu+Cuamb))*(1+Cvamb/Kmv)^2);
