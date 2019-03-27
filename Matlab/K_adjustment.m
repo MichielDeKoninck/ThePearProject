@@ -1,15 +1,15 @@
 function [ K_add ] = K_adjustment( Ak,coordinatesMatrix,sigma_r,sigma_z)
     
-%     x1 = coordinatesMatrix(1,2); y1 = coordinatesMatrix(1,3); 
-%     x2 = coordinatesMatrix(2,2); y2 = coordinatesMatrix(2,3); 
-%     x3 = coordinatesMatrix(3,2); y3 = coordinatesMatrix(3,3);
     x1 = coordinatesMatrix(1,1); y1 = coordinatesMatrix(1,2); 
     x2 = coordinatesMatrix(2,1); y2 = coordinatesMatrix(2,2); 
     x3 = coordinatesMatrix(3,1); y3 = coordinatesMatrix(3,2);
     %Create matrix with adjustments to K-matrix:
     
+    %Kwadratuurformule: 1/2*g(1/3,1/3); kwadratuurpunt in zwaartepunt van
+    %driehoek
     fixed_sum = (1/6)*(x1+x2+x3);
     
+    %Lineaire basisfuncties -> Getallen als afgeleiden
     dphi1_dr = -(1/(2*Ak))*(y3-y2); %Eerste hoekpunt komt hier niet in voor, die zal daar horen
     dphi2_dr = -(1/(2*Ak))*(y1-y3);
     dphi3_dr = -(1/(2*Ak))*(y2-y1);
@@ -30,7 +30,7 @@ function [ K_add ] = K_adjustment( Ak,coordinatesMatrix,sigma_r,sigma_z)
    
     K_add = [k_e1_1, k_e1_2, k_e1_3; k_e1_2, k_e2_2, k_e2_3; k_e1_3, k_e2_3, k_e3_3];
    
-    %Todo: signaleerder van NaN toevoegen
+    %Signaleer NaN waarden
     if(any(any(isnan(K_add))))
         disp('NaN-value spotted during K_adjustment calculation')
     end

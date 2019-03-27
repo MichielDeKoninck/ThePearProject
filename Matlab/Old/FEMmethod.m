@@ -109,6 +109,9 @@ K_second_row_Cu = zeros(M,M);
 K = [K_u, zeros(M,M); zeros(M,M), K_v];
 F = [F_u; F_v];
 c = K\F; %check to see if Cu_amb and Cv_amb are found: CHECK 
+figure();
+plot(c)
+title('c found from simplified stationary system');
 
 for triangle_index=1:T
     nodes = t(1:3,triangle_index);

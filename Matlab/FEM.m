@@ -1,7 +1,7 @@
 %Finite-element method implementation
 
-%function FEM(condition)
-    %% Constanten
+function FEM(condition)
+    %% Constants & Condition cases
     T_ref=293.15;
     T_stan = 273.15;
     condition='orchard';
@@ -37,7 +37,11 @@
             eta_u = 0.02;
             eta_v =0.05;                   
         otherwise
-            disp('No conditions specified!')
+            disp('No conditions specified: automatic ORCHARD!')
+            %ORCHARD CONDITIONS:
+            T=T_stan+25;
+            eta_u = 0.208;
+            eta_v =0.0004;
     end
     
     %DIFFUSIVITIES
@@ -64,7 +68,6 @@
     p_atm=101300;
     R_g= 8.314;
 
-    %TO COPY IN CODE:
     V_mu=V_mu_ref*exp((E_a_vmu_ref/R_g)*((1/T_ref)-(1/T)));
     V_mfv = V_mfv_ref*exp((E_a_vmfv_ref/R_g)*((1/T_ref)-(1/T)));
 
@@ -76,13 +79,11 @@
     p = example.p;
     %example = matfile('save_p_smaller.mat');
     %p = example.p_smaller;
-
     
     example = matfile('save_t.mat');
     t = example.t;
     %example = matfile('save_t_smaller.mat');
     %t = example.t_smaller;
-    
     
     example = matfile('save_e.mat');
     e = example.e;
@@ -116,12 +117,9 @@
         x2 = triangleCoordinatesMatrix(2,1); y2 = triangleCoordinatesMatrix(2,2); 
         x3 = triangleCoordinatesMatrix(3,1); y3 = triangleCoordinatesMatrix(3,2);
 
+        Ak = abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2; %Oppervlakte (alternatief: determinant)
 
-        % opp = (1/2)*abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2)); %Alternatief voor oppervlakte
-        %Ak = abs(det(triangleCoordinatesMatrix))/2; %Calculation of Area
-        Ak = abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2;
-
-        %check: moet dit nodes' zijn?
+        %Aanpassingen aan 9 waarden van K_u en K_v
         K_u(nodes,nodes)= K_u(nodes,nodes) + K_adjustment(Ak,triangleCoordinatesMatrix,sigma_ur,sigma_uz); %neemt automatisch juiste combinaties
         K_v(nodes,nodes)= K_v(nodes,nodes) + K_adjustment(Ak,triangleCoordinatesMatrix,sigma_vr,sigma_vz);
 
@@ -132,7 +130,7 @@
         nodes = e(1:2,edge_index);
         x1 = p(1,nodes(1)); y1 = p(2,nodes(1)); %Coördinaten ophalen
         x2 = p(1,nodes(2)); y2 = p(2,nodes(2));
-        if (x1 > 0.0017 && x2 > 0.0017) %Dan zitten we niet met een gamma_1 edge
+        if (x1 > 0.0017 || x2 > 0.0017) %Dan zitten we niet met een gamma_1 edge
            %Adjustments to K:
            K_u(nodes,nodes) = K_u(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_u);
            K_v(nodes,nodes) = K_v(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_v);
@@ -141,7 +139,7 @@
            F_u(nodes,1) = F_u(nodes,1) + F_edge_adjustment(x1,y1,x2,y2,rho_u,Cu_amb);
            F_v(nodes,1) = F_v(nodes,1) + F_edge_adjustment(x1,y1,x2,y2,rho_v,Cv_amb);
         end
-    end
+    end %Finished Linear Adjustments
 
     %% Linearisatie van Ru en Rv
     Ku_copy = K_u;
@@ -153,7 +151,10 @@
     K = [K_u, zeros(M,M); zeros(M,M), K_v];
     F = [F_u; F_v];
     c = K\F; %check to see if Cu_amb and Cv_amb are found: CHECK 
-
+    figure()
+    plot(c)
+    title('c found from simplified stationary system');
+    
     for triangle_index=1:T
         nodes = t(1:3,triangle_index);
         triangleCoordinatesMatrix = [p(:,nodes)']; 
@@ -170,24 +171,25 @@
         Fv_copy(nodes,1) = Fv_copy(nodes,1) + F_adjustment_Hv(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
         Kv_copy(nodes,nodes) = Kv_copy(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
         K_second_row_Cu(nodes,nodes) = K_second_row_Cu(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
-
     end
-    K = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
-    K_copy = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
-    f = [Fu_copy;Fv_copy];
-    c0 = K\f;  %% Deze klopt niet maar we gaan er ff mee verderwerken wegens tijdtekort.
     
-    K = [K_u, zeros(M,M); zeros(M,M), K_v];%Reset K
+    K_intial = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
+    f = [Fu_copy;Fv_copy];
+    c0 = K_intial\f;  %% NOT CORRECT YET. But proceed anyway.
+    
     c_u=c0(1:M);
     c_v=c0(M+1:2*M);
     figure()
     plot(c0)
+    title('initial c');
     %% Niet lineair stuk - Jacobiaan en F bepalen: Newton-Rhapson
     
     iteration_bound = 10;
     c = c0; %begin concentraties instellen
-    c = zeros(2*M,1);
-    step = zeros(2*M,1); %Initialisatie van stap
+    %Alternative: try with starting zeros
+    %c = zeros(2*M,1);
+    %c_u=c(1:M);
+    %c_v=c(M+1:2*M);
 
     for i = 1:iteration_bound
         
@@ -199,7 +201,8 @@
             x2 = triangleCoordinatesMatrix(2,1); y2 = triangleCoordinatesMatrix(2,2); 
             x3 = triangleCoordinatesMatrix(3,1); y3 = triangleCoordinatesMatrix(3,2);
             node1=nodes(1); node2=nodes(2); node3=nodes(3);
-
+            
+            %Gaussion third degree quadrature rule used to approximate integral
             %DeltaHu/deltaCu
             J(node1,node1) = J(node1,node1) + (-27/96)*g_rucu(1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
             J(node2,node2) = J(node2,node2) + (-27/96)*g_rucu(2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
@@ -245,43 +248,31 @@
             F(node1+M) =  F(node1+M) + (-27/96)*g_rv(1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu) + (25/96)*((g_rv(1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)+(g_rv(1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)+(g_rv(1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)))));
             F(node2+M) =  F(node2+M) + (-27/96)*g_rv(2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu) + (25/96)*((g_rv(2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)+(g_rv(2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)+(g_rv(2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)))));
             F(node3+M) =  F(node3+M) + (-27/96)*g_rv(3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu) + (25/96)*((g_rv(3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)+(g_rv(3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)+(g_rv(3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,V_mfv,K_mfu)))));
-        end % F volledig gebouwd
+        end % F volledig gebouwd (gaat effectief naar 0, dat is goed)
 
         step = J\F;
         c=c-step;
+        c_u=c(1:M); %update c_u value
+        c_v=c(M+1:2*M);
         disp(norm(step))
         
         if norm(step)<(10^-6)
             break
         end
     end
-        
-    %De Jacobiaan en F defini�ren zodat we newton rhapson kunnen doorvoeren
-    %F is gewoon de gehele uitdrukking en J is de partiele afgeleide ervan (cu
-    %deel naar cu en cv); cv deel naar cu en cv. 
-
-    %F = @(c_u,c_v) %TODO uitdrukking hiervoor
-
-    %R_v(c_u,c_v, r_q, V_mfv,K_mfu,V_mu,K_mu,K_mv)
-    %dRudcu( c_u,c_v,V_mu,K_mu,K_mv )
-    %dRudcv( c_u,c_v,V_mu,K_mu,K_mv )
-    %dRvdcv(c_u,c_v,r_q,V_mu,K_mu,K_mv )
-    %dRvdcu( c_u,c_v,r_q,V_mu,K_mu,K_mv,V_mfu,K_mfu )
-
-
-
-    %% Repetition 
-    % % % % [c_u,c_v] = NewtonRaphson( F,J,c_u0,c_v0,5*10^(-11));
-
-    %Newton-Raphson gebruiken tot convergentie:
+    
+    figure()
+    spy(J)
+    title('spy Jacobian') 
 
     %% Plot 
+    %Plot for initial values
     c_u=c0(1:M);
     c_v=c0(M+1:2*M);
-
-%     c_u=c(1:M);
-%       c_v=c(M+1:2*M);
+    %Plot for result after iteration 
+    %c_u=c(1:M);
+    %c_v=c(M+1:2*M);
 
     PearPlot(p,e,t,c_u,c_v)
 
-% end
+end
