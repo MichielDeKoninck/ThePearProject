@@ -1,10 +1,13 @@
 %Finite-element method implementation
 
-function FEM(condition)
+%function FEM(condition)
     %% Constants & Condition cases
     T_ref=293.15;
     T_stan = 273.15;
-    condition='orchard';
+  
+    
+    %OPTIMAL CA CONDITIONS:
+    condition = 'optimalCA'
     switch condition 
         case 'orchard'
             %ORCHARD CONDITIONS:
@@ -118,6 +121,7 @@ function FEM(condition)
         x3 = triangleCoordinatesMatrix(3,1); y3 = triangleCoordinatesMatrix(3,2);
 
         Ak = abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2; %Oppervlakte (alternatief: determinant)
+        %Jac = abs((x2-x1)*(y3-y1)-(x3-x1)*(y2-y1));% is 2*Ak 
 
         %Aanpassingen aan 9 waarden van K_u en K_v
         K_u(nodes,nodes)= K_u(nodes,nodes) + K_adjustment(Ak,triangleCoordinatesMatrix,sigma_ur,sigma_uz); %neemt automatisch juiste combinaties
@@ -146,14 +150,26 @@ function FEM(condition)
     Kv_copy = K_v;
     Fu_copy = F_u;
     Fv_copy = F_v;
-    K_first_row_Cv = zeros(M,M);
-    K_second_row_Cu = zeros(M,M);
+    Lower_Left_K = zeros(M,M);
+    Upper_Right_K = zeros(M,M);
     K = [K_u, zeros(M,M); zeros(M,M), K_v];
     F = [F_u; F_v];
     c = K\F; %check to see if Cu_amb and Cv_amb are found: CHECK 
-    figure()
+    Cu=c(1:M);
+    Cv=c(M+1:2*M);
+    
+    figure('NumberTitle', 'off', 'Name', 'Check1: c found from simplified stationary system');
+    subplot(3,1,1);
     plot(c)
-    title('c found from simplified stationary system');
+    subplot(3,1,2);
+    %pdeplot(p,e,t,'XYData',Cu,'ZData',Cu,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
+    pdeplot(p,e,t,'XYData',Cu, 'colormap','jet','Title', 'C_u');
+    subplot(3,1,3);
+    %pdeplot(p,e,t,'XYData',Cv,'ZData',Cv,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_v');
+    pdeplot(p,e,t,'XYData',Cv, 'colormap','jet','Title', 'C_v')
+
+    %Ziet er wel degelijk uit (moet niet exact zijn want de randvoorwaarden zijn convectief)  
+    
     
     for triangle_index=1:T
         nodes = t(1:3,triangle_index);
@@ -164,19 +180,35 @@ function FEM(condition)
         
         Ak = abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2;
         
-        Fu_copy(nodes,1) = Fu_copy(nodes,1) + F_adjustment_Hu(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+        %Fu_copy(nodes,1) = Fu_copy(nodes,1) + F_adjustment_Hu(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
         Ku_copy(nodes,nodes) = Ku_copy(nodes,nodes) + K_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
-        K_first_row_Cv(nodes,nodes) = K_first_row_Cv(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+        %HUTS
+        %K_first_row_Cv(nodes,nodes) = K_first_row_Cv(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
         
-        Fv_copy(nodes,1) = Fv_copy(nodes,1) + F_adjustment_Hv(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
-        Kv_copy(nodes,nodes) = Kv_copy(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
-        K_second_row_Cu(nodes,nodes) = K_second_row_Cu(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+        Fv_copy(nodes,1) = Fv_copy(nodes,1) + F_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+        %Aanpassingen aan deel linksonder
+        Lower_Left_K(nodes,nodes) = Lower_Left_K(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
+        %K_second_row_Cu(nodes,nodes) = K_second_row_Cu(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+    
     end
     
-    K_intial = [Ku_copy, K_first_row_Cv;K_second_row_Cu,Kv_copy];
+    K_intial = [Ku_copy, Upper_Right_K;Lower_Left_K,Kv_copy];
     f = [Fu_copy;Fv_copy];
     c0 = K_intial\f;  %% NOT CORRECT YET. But proceed anyway.
     
+    figure('Name', 'Spy the K-matrix for initialisation');
+    spy(K_intial);
+    
+    figure( 'Name', 'Initial C found after linearisation');
+    subplot(3,1,1);
+    plot(c0)
+    subplot(3,1,2);
+    %pdeplot(p,e,t,'XYData',Cu,'ZData',Cu,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
+    pdeplot(p,e,t,'XYData',c0(1:M), 'colormap','jet','Title', 'C_u');
+    subplot(3,1,3);
+    %pdeplot(p,e,t,'XYData',Cv,'ZData',Cv,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_v');
+    pdeplot(p,e,t,'XYData',c0(M+1:2*M), 'colormap','jet','Title', 'C_v')
+
     c_u=c0(1:M);
     c_v=c0(M+1:2*M);
     figure()
@@ -184,7 +216,7 @@ function FEM(condition)
     title('initial c');
     %% Niet lineair stuk - Jacobiaan en F bepalen: Newton-Rhapson
     
-    iteration_bound = 10;
+    iteration_bound = 3;
     c = c0; %begin concentraties instellen
     %Alternative: try with starting zeros
     %c = zeros(2*M,1);
@@ -267,12 +299,12 @@ function FEM(condition)
 
     %% Plot 
     %Plot for initial values
-    c_u=c0(1:M);
-    c_v=c0(M+1:2*M);
+    %c_u=c0(1:M);
+    %c_v=c0(M+1:2*M);
     %Plot for result after iteration 
-    %c_u=c(1:M);
-    %c_v=c(M+1:2*M);
+    c_u=c(1:M);
+    c_v=c(M+1:2*M);
 
     PearPlot(p,e,t,c_u,c_v)
 
-end
+%end voor als het effectief een functie is

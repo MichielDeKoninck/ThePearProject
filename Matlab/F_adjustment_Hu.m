@@ -12,10 +12,10 @@ function [ F_add ] = F_adjustment_Hu( coordinatesMatrix,Vmu,Kmu,Kmv,Cuamb,Cvamb)
 %     Fe3 = (length_edge/24)*(x1 + x2 + 2*x3)*(Vmu*Cuamb)/((Kmu+Cuamb)*(1+Cvamb/Kmv))*(1-(Kmu/(Kmu+Cuamb))+(Cvamb/(Kmv*(1+Cvamb/Kmv))));
 
     %Gaussian first degree quadrature formula: 
-    Fe1 = (length_edge/18)*(x1 + x2 + x3)*((Vmu*Cuamb)/((Kmu+Cuamb)*(1+Cvamb/Kmv)))*(1-(Kmu/(Kmu+Cuamb))+(Cvamb/(Kmv*(1+Cvamb/Kmv))));
-    Fe2 = (length_edge/18)*(x1 + x2 + x3)*(Vmu*Cuamb)/((Kmu+Cuamb)*(1+Cvamb/Kmv))*(1-(Kmu/(Kmu+Cuamb))+(Cvamb/(Kmv*(1+Cvamb/Kmv))));
-    Fe3 = (length_edge/18)*(x1 + x2 + x3)*(Vmu*Cuamb)/((Kmu+Cuamb)*(1+Cvamb/Kmv))*(1-(Kmu/(Kmu+Cuamb))+(Cvamb/(Kmv*(1+Cvamb/Kmv))));
-    
+%    Fe1 = (length_edge/18)*(x1 + x2 + x3)*((Vmu*Cuamb)/((Kmu+Cuamb)*(1+Cvamb/Kmv)))*(1-(Kmu/(Kmu+Cuamb))+(Cvamb/(Kmv*(1+Cvamb/Kmv))));
+%    Fe2 = (length_edge/18)*(x1 + x2 + x3)*(Vmu*Cuamb)/((Kmu+Cuamb)*(1+Cvamb/Kmv))*(1-(Kmu/(Kmu+Cuamb))+(Cvamb/(Kmv*(1+Cvamb/Kmv))));
+%    Fe3 = (length_edge/18)*(x1 + x2 + x3)*(Vmu*Cuamb)/((Kmu+Cuamb)*(1+Cvamb/Kmv))*(1-(Kmu/(Kmu+Cuamb))+(Cvamb/(Kmv*(1+Cvamb/Kmv))));
+
     F_add = [Fe1;Fe2;Fe3];
 
 end
