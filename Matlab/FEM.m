@@ -1,5 +1,6 @@
 %Finite-element method implementation
-
+clear
+close all
 %function FEM(condition)
     %% Constants & Condition cases
     T_ref=293.15;
@@ -138,10 +139,12 @@
            %Adjustments to K:
            K_u(nodes,nodes) = K_u(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_u);
            K_v(nodes,nodes) = K_v(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_v);
+           %HUTS
 
            %Adjustments to F: 
-           F_u(nodes,1) = F_u(nodes,1) + F_edge_adjustment(x1,y1,x2,y2,rho_u,Cu_amb);
-           F_v(nodes,1) = F_v(nodes,1) + F_edge_adjustment(x1,y1,x2,y2,rho_v,Cv_amb);
+           F_u(nodes,1) = F_u(nodes,1) - F_edge_adjustment(x1,y1,x2,y2,rho_u,Cu_amb);
+           F_v(nodes,1) = F_v(nodes,1) - F_edge_adjustment(x1,y1,x2,y2,rho_v,Cv_amb);
+           %HUTS
         end
     end %Finished Linear Adjustments
 
@@ -180,21 +183,22 @@
         
         Ak = abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2;
         
-        %Fu_copy(nodes,1) = Fu_copy(nodes,1) + F_adjustment_Hu(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+%        Fu_copy(nodes,1) = Fu_copy(nodes,1) - F_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
         Ku_copy(nodes,nodes) = Ku_copy(nodes,nodes) + K_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
-        %HUTS
-        %K_first_row_Cv(nodes,nodes) = K_first_row_Cv(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+%        Upper_Right_K(nodes,nodes) = Upper_Right_K(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
         
-        Fv_copy(nodes,1) = Fv_copy(nodes,1) + F_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+        Fv_copy(nodes,1) = Fv_copy(nodes,1) - F_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+        %Kv_copy(nodes,nodes) = Kv_copy(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
         %Aanpassingen aan deel linksonder
-        Lower_Left_K(nodes,nodes) = Lower_Left_K(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
-        %K_second_row_Cu(nodes,nodes) = K_second_row_Cu(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+        Lower_Left_K(nodes,nodes) = Lower_Left_K(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
     
     end
     
     K_intial = [Ku_copy, Upper_Right_K;Lower_Left_K,Kv_copy];
-    f = [Fu_copy;Fv_copy];
+    f = [Fu_copy;Fv_copy]; %Fu did not change
     c0 = K_intial\f;  %% NOT CORRECT YET. But proceed anyway.
+    cu_0 = c0(1:M);
+    cv_0 =  c0(M+1:2*M);
     
     figure('Name', 'Spy the K-matrix for initialisation');
     spy(K_intial);
@@ -204,10 +208,10 @@
     plot(c0)
     subplot(3,1,2);
     %pdeplot(p,e,t,'XYData',Cu,'ZData',Cu,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
-    pdeplot(p,e,t,'XYData',c0(1:M), 'colormap','jet','Title', 'C_u');
+    pdeplot(p,e,t,'XYData',cu_0, 'colormap','jet','Title', 'C_u');
     subplot(3,1,3);
     %pdeplot(p,e,t,'XYData',Cv,'ZData',Cv,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_v');
-    pdeplot(p,e,t,'XYData',c0(M+1:2*M), 'colormap','jet','Title', 'C_v')
+    pdeplot(p,e,t,'XYData',cv_0, 'colormap','jet','Title', 'C_v')
 
     c_u=c0(1:M);
     c_v=c0(M+1:2*M);

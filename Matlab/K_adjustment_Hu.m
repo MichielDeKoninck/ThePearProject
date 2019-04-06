@@ -13,21 +13,37 @@ function [ K_add ] = K_adjustment_Hu( Ak,coordinatesMatrix,Vmu,Kmu,Kmv,Cuamb,Cva
      %Ke11 = (Ak/24)*(2*x1 + x2 + x3)*((Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)));
      %Ke22 = (Ak/24)*(x1 + 2*x2 + x3)*(Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv));
      %Ke33 = (Ak/24)*(x1 + x2 + 2*x3)*(Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv));
+     
+     
+     %volledige linearisatie versie:
+     
+%          Ke11 =  (1/60)*(3*x1 + x2 + x3) * ((Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)))*2*Ak;
+%     
+%     Ke12 = (1/60)*(x1 + x2 + (1/2)*x3) * ((Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)))*2*Ak;
+%    
+%     Ke13 = (1/60)*(x1 + (1/2)*x2 + x3) * ((Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)))*2*Ak;
+%    
+%     Ke22 =  (1/60)*(x1 + 3*x2 + x3) * ((Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)))*2*Ak;
+%     
+%     Ke23 = (1/60)*((1/2)*x1 + x2 + x3) * ((Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)))*2*Ak;
+% 
+%     Ke33 =  (1/60)*(x1 + x2 + 3*x3) * ((Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)))*2*Ak;
+
     
     %Nieuwe implementatie: zuiver via mupad
     %Toch geen zuiver diagonale aanpassingen
     
-    Ke11 =  (1/60)*(3*x1 + x2 + x3) * (Vmu/(Kmu*(1+Cvamb/Kmv)))*2*Ak;
+    Ke11 =  (1/60)*(3*x1 + x2 + x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
     
-    Ke12 = (1/60)*(x1 + x2 + (1/2)*x3) * (Vmu/(Kmu*(1+Cvamb/Kmv)))*2*Ak;
+    Ke12 = (1/60)*(x1 + x2 + (1/2)*x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
    
-    Ke13 = (1/60)*(x1 + (1/2)*x2 + x3) * (Vmu/(Kmu*(1+Cvamb/Kmv)))*2*Ak;
+    Ke13 = (1/60)*(x1 + (1/2)*x2 + x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
    
-    Ke22 =  (1/60)*(x1 + 3*x2 + x3) * (Vmu/(Kmu*(1+Cvamb/Kmv)))*2*Ak;
+    Ke22 =  (1/60)*(x1 + 3*x2 + x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
     
-    Ke23 = (1/60)*((1/2)*x1 + x2 + x3) * (Vmu/(Kmu*(1+Cvamb/Kmv)))*2*Ak;
-
-    Ke33 =  (1/60)*(x1 + x2 + 3*x3) * (Vmu/(Kmu*(1+Cvamb/Kmv)))*2*Ak;
+    Ke23 = (1/60)*((1/2)*x1 + x2 + x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
+    
+    Ke33 =  (1/60)*(x1 + x2 + 3*x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
 
     Ke21 = Ke12;
     Ke31 = Ke13;
