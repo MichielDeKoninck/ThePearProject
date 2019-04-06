@@ -157,7 +157,7 @@ close all
     Upper_Right_K = zeros(M,M);
     K = [K_u, zeros(M,M); zeros(M,M), K_v];
     F = [F_u; F_v];
-    c = K\F; %check to see if Cu_amb and Cv_amb are found: CHECK 
+    c = K\F; %check to see if Cu_amb and Cv_amb are approximately found: CHECK 
     Cu=c(1:M);
     Cv=c(M+1:2*M);
     
@@ -183,15 +183,14 @@ close all
         
         Ak = abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2;
         
-        %Fu_copy(nodes,1) = Fu_copy(nodes,1) + F_adjustment_Hu(triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+%        Fu_copy(nodes,1) = Fu_copy(nodes,1) - F_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
         Ku_copy(nodes,nodes) = Ku_copy(nodes,nodes) + K_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
-        
-        %K_first_row_Cv(nodes,nodes) = K_first_row_Cv(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+%        Upper_Right_K(nodes,nodes) = Upper_Right_K(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
         
         Fv_copy(nodes,1) = Fv_copy(nodes,1) - F_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+        %Kv_copy(nodes,nodes) = Kv_copy(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
         %Aanpassingen aan deel linksonder
-        Lower_Left_K(nodes,nodes) = Lower_Left_K(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
-        %K_second_row_Cu(nodes,nodes) = K_second_row_Cu(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
+        Lower_Left_K(nodes,nodes) = Lower_Left_K(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
     
     end
     
@@ -241,24 +240,24 @@ close all
             
             %Gaussion third degree quadrature rule used to approximate integral
             %DeltaHu/deltaCu
-            J(node1,node1) = J(node1,node1) + (-27/96)*g_rucu(1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
-            J(node2,node2) = J(node2,node2) + (-27/96)*g_rucu(2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
-            J(node3,node3) = J(node3,node3) + (-27/96)*g_rucu(3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
+            J(node1,node1) = J(node1,node1) + (-27/96)*g_rucu(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
+            J(node2,node2) = J(node2,node2) + (-27/96)*g_rucu(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
+            J(node3,node3) = J(node3,node3) + (-27/96)*g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
 
             %DeltaHu/deltaCv
-            J(node1,node1+M) = J(node1,node1+M) + (-27/96)*g_rucv(1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
-            J(node2,node2+M) = J(node2,node2+M) + (-27/96)*g_rucv(2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
-            J(node3,node3+M) = J(node3,node3+M) + (-27/96)*g_rucv(3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
+            J(node1,node1+M) = J(node1,node1+M) + (-27/96)*g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
+            J(node2,node2+M) = J(node2,node2+M) + (-27/96)*g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
+            J(node3,node3+M) = J(node3,node3+M) + (-27/96)*g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
 
             %DeltaHv/deltaCu
-            J(node1+M,node1) = J(node1+M,node1) + (-27/96)*g_rvcu(1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
-            J(node2+M,node2) = J(node2+M,node2) + (-27/96)*g_rvcu(2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
-            J(node3+M,node3) = J(node3+M,node3) + (-27/96)*g_rvcu(3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
+            J(node1+M,node1) = J(node1+M,node1) + (-27/96)*g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
+            J(node2+M,node2) = J(node2+M,node2) + (-27/96)*g_rvcu(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
+            J(node3+M,node3) = J(node3+M,node3) + (-27/96)*g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
 
             %DeltaHv/deltaCv
-            J(node1+M,node1+M) = J(node1+M,node1+M)  + (-27/96)*g_rvcv(1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
-            J(node2+M,node2+M) = J(node2+M,node2+M)  + (-27/96)*g_rvcv(2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
-            J(node3+M,node3+M) = J(node3+M,node3+M)  + (-27/96)*g_rvcv(3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
+            J(node1+M,node1+M) = J(node1+M,node1+M)  + (-27/96)*g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
+            J(node2+M,node2+M) = J(node2+M,node2+M)  + (-27/96)*g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
+            J(node3+M,node3+M) = J(node3+M,node3+M)  + (-27/96)*g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
 
         end %Einde berekening Jacobiaan   
 
