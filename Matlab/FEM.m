@@ -81,36 +81,32 @@ close all
     %____________POINTS
     % DON'T FORGET TO ADD DIMENSIONS ON TOP OF TEXT FILE BEFORE USING IN
     % FORTRAN
-    example = matfile('save_p.mat');
-    p = example.p;
-    %example = matfile('save_p_smaller.mat');
-    %p = example.p_smaller;
+    %example = matfile('save_p.mat');
+    %p = example.p;
+    example = matfile('save_p_smaller.mat');
+    p = example.p_smaller;
     
     %save('Points.txt', 'p', '-ascii', '-double', '-tabs')
     p_columnwise = p'; %Als kolomdoorgeven want fortran gaat zo inlezen
-    csvwrite('Points.txt',p_columnwise) %Integers
+    csvwrite('PointsSmaller.txt',p_columnwise) %Integers
     
     %____________TRIANGLES
-    example = matfile('save_t.mat');
-    t = example.t;
-    %example = matfile('save_t_smaller.mat');
-    %t = example.t_smaller;
-    
-    useful_t = t(1:3,:);
- 
+    %example = matfile('save_t.mat');
+    %t = example.t;
+    example = matfile('save_t_smaller.mat');
+    t = example.t_smaller;
+     
     useful_t_columnwise = t(1:3,:)';
-    csvwrite('Triangles.txt',useful_t_columnwise) %Integers
+    csvwrite('TrianglesSmaller.txt',useful_t_columnwise) %Integers
 
     %____________EDGES
-    example = matfile('save_e.mat');
-    e = example.e;
-    %example = matfile('save_e_smaller.mat');
-    %e = example.e_smaller;
+    %example = matfile('save_e.mat');
+    %e = example.e;
+    example = matfile('save_e_smaller.mat');
+    e = example.e_smaller;
     
-    useful_e = e(1:2,:);
-
     useful_e_columnwise = e(1:2,:)';
-    csvwrite('Edges.txt',useful_e_columnwise) %Integers
+    csvwrite('EdgesSmaller.txt',useful_e_columnwise) %Integers
 
 
     %%  Creation of empty matrices
@@ -182,7 +178,10 @@ close all
     Upper_Right_K = zeros(M,M);
     K = [K_u, zeros(M,M); zeros(M,M), K_v];
     F = [F_u; F_v];
-    c = K\F; %check to see if Cu_amb and Cv_amb are approximately found: CHECK 
+    F_check = F;
+    K_check = K;
+    c = K\F; %check to see if Cu_amb and Cv_amb are approximately found: CHECK
+    c_check = c;
     Cu=c(1:M);
     Cv=c(M+1:2*M);
     
