@@ -36,7 +36,6 @@ function [ K_add ] = K_second_row_Cu_adjustment_Hv( Ak,coordinatesMatrix,Vmu,Kmu
 %     Ke33 =  -(1/60)*(x1 + x2 + 3*x3) * ((rq*Vmu*Kmu)/(((Kmu+Cuamb)^2)*(1+Cvamb/Kmv)))*2*Ak;
 %     Ke33 = Ke33 + (1/60)*(x1 + x2 + 3*x3) *(Vmfv/(Kmfu*((1+Cuamb/Kmfu)^2)))*2*Ak;
 
-
     Ke11 =  -(1/60)*(3*x1 + x2 + x3) * ((rq*Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
     
     Ke12 = -(1/60)*(x1 + x2 + (1/2)*x3) * ((rq*Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
@@ -49,6 +48,7 @@ function [ K_add ] = K_second_row_Cu_adjustment_Hv( Ak,coordinatesMatrix,Vmu,Kmu
     Ke23 = -(1/60)*((1/2)*x1 + x2 + x3) * ((rq*Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
     
     Ke33 =  -(1/60)*(x1 + x2 + 3*x3) * ((rq*Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
+
     
     Ke21 = Ke12;
     Ke31 = Ke13;

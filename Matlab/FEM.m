@@ -6,44 +6,43 @@ close all
     T_ref=293.15;
     T_stan = 273.15;
   
-    
     %OPTIMAL CA CONDITIONS:
     condition = 'optimalCA'
     switch condition 
         case 'orchard'
             %ORCHARD CONDITIONS:
-            T=T_stan+25;
+            Temp=T_stan+25;
             eta_u = 0.208;
             eta_v =0.0004;
         case 'shelflife'
             %SHELFLIFE CONDITIONS:
-            T=T_stan+20;
+            Temp=T_stan+20;
             eta_u = 0.208;
             eta_v =0;
         case 'refrigerator'
             %REFRIGERATOR CONDITIONS:
-            T=T_stan+7;
+            Temp=T_stan+7;
             eta_u = 0.208;
             eta_v =0;
         case 'precooling'
             %PRECOOLING CONDITIONS:
-            T=T_stan+(-1);
+            Temp=T_stan+(-1);
             eta_u = 0.208;
             eta_v =0;
         case 'disorderinducing'
             %DISORDER INDUCING CONDITIONS:
-            T=T_stan+(-1);
+            Temp=T_stan+(-1);
             eta_u = 0.02;
             eta_v =0.05;   
         case 'optimalCA'
             %OPTIMAL CA CONDITIONS:
-            T=T_stan+(-1);
+            Temp=T_stan+(-1);
             eta_u = 0.02;
             eta_v =0.007;                   
         otherwise
             disp('No conditions specified: automatic ORCHARD!')
             %ORCHARD CONDITIONS:
-            T=T_stan+25;
+            Temp=T_stan+25;
             eta_u = 0.208;
             eta_v =0.0004;
     end
@@ -72,13 +71,13 @@ close all
     p_atm=101300;
     R_g= 8.314;
 
-    V_mu=V_mu_ref*exp((E_a_vmu_ref/R_g)*((1/T_ref)-(1/T)));
-    V_mfv = V_mfv_ref*exp((E_a_vmfv_ref/R_g)*((1/T_ref)-(1/T)));
+    V_mu=V_mu_ref*exp((E_a_vmu_ref/R_g)*((1/T_ref)-(1/Temp)));
+    V_mfv = V_mfv_ref*exp((E_a_vmfv_ref/R_g)*((1/T_ref)-(1/Temp)));
 
-    Cu_amb = p_atm*eta_u/(R_g*T);
-    Cv_amb = p_atm*eta_v/(R_g*T);
+    Cu_amb = p_atm*eta_u/(R_g*Temp);
+    Cv_amb = p_atm*eta_v/(R_g*Temp);
 
-   %% Points en indices laden
+    %% Points en indices laden
     %____________POINTS
     % DON'T FORGET TO ADD DIMENSIONS ON TOP OF TEXT FILE BEFORE USING IN
     % FORTRAN
@@ -134,6 +133,7 @@ close all
     F_v=zeros(M,1); 
 
 
+
     %% Calculations for K and f
 
     %Loop over triangles: 
@@ -160,6 +160,7 @@ close all
         x1 = p(1,nodes(1)); y1 = p(2,nodes(1)); %Coördinaten ophalen
         x2 = p(1,nodes(2)); y2 = p(2,nodes(2));
         if (x1 > 0.0017 || x2 > 0.0017) %Dan zitten we niet met een gamma_1 edge
+        
            %Adjustments to K:
            K_u(nodes,nodes) = K_u(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_u);
            K_v(nodes,nodes) = K_v(nodes,nodes) + K_edge_adjustment(x1,y1,x2,y2,rho_v);
@@ -208,24 +209,26 @@ close all
         Ak = abs(x1*(y2-y3) + x2*(y3-y1) + x3*(y1-y2))/2;
         
 %        Fu_copy(nodes,1) = Fu_copy(nodes,1) - F_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+        
         Ku_copy(nodes,nodes) = Ku_copy(nodes,nodes) + K_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
-%        Upper_Right_K(nodes,nodes) = Upper_Right_K(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
+
+        %        Upper_Right_K(nodes,nodes) = Upper_Right_K(nodes,nodes) + K_first_row_Cv_adjustment_Hu(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb);
         
         Fv_copy(nodes,1) = Fv_copy(nodes,1) - F_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
         %Kv_copy(nodes,nodes) = Kv_copy(nodes,nodes) + K_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q);
         %Aanpassingen aan deel linksonder
         Lower_Left_K(nodes,nodes) = Lower_Left_K(nodes,nodes) + K_second_row_Cu_adjustment_Hv(Ak,triangleCoordinatesMatrix,V_mu,K_mu,K_mv,Cu_amb,Cv_amb,r_q,V_mfv,K_mfu);
-    
+       
     end
     
-    K_intial = [Ku_copy, Upper_Right_K;Lower_Left_K,Kv_copy];
+    K_initial = [Ku_copy, Upper_Right_K;Lower_Left_K,Kv_copy];
     f = [Fu_copy;Fv_copy]; %Fu did not change
-    c0 = K_intial\f;  %% NOT CORRECT YET. But proceed anyway.
+    c0 = K_initial\f;  %% NOT CORRECT YET. But proceed anyway.
     cu_0 = c0(1:M);
-    cv_0 =  c0(M+1:2*M);
+    cv_0 = c0(M+1:2*M);
     
     figure('Name', 'Spy the K-matrix for initialisation');
-    spy(K_intial);
+    spy(K_initial);
     
     figure( 'Name', 'Initial C found after linearisation');
     subplot(3,1,1);
@@ -270,9 +273,9 @@ close all
             J(node3,node3) = J(node3,node3) + (-27/96)*g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,V_mu,K_mu,K_mv) + (25/96)*(g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,V_mu,K_mu,K_mv)+g_rucu(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,V_mu,K_mu,K_mv));
 
             %DeltaHu/deltaCv
-            J(node1,node1+M) = J(node1,node1+M) + (-27/96)*g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
-            J(node2,node2+M) = J(node2,node2+M) + (-27/96)*g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
-            J(node3,node3+M) = J(node3,node3+M) + (-27/96)*g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv) + (25/96)*(g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv)+g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv));
+            J(node1,node1+M) = J(node1,node1+M) + (-27/96)*g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv,V_mu) + (25/96)*(g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv,V_mu)+g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv,V_mu)+g_rucv(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv,V_mu));
+            J(node2,node2+M) = J(node2,node2+M) + (-27/96)*g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv,V_mu) + (25/96)*(g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv,V_mu)+g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv,V_mu)+g_rucv(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv,V_mu));
+            J(node3,node3+M) = J(node3,node3+M) + (-27/96)*g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,K_mu,K_mv,V_mu) + (25/96)*(g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,K_mu,K_mv,V_mu)+g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,K_mu,K_mv,V_mu)+g_rucv(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,K_mu,K_mv,V_mu));
 
             %DeltaHv/deltaCu
             J(node1+M,node1) = J(node1+M,node1) + (-27/96)*g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
@@ -280,9 +283,9 @@ close all
             J(node3+M,node3) = J(node3+M,node3) + (-27/96)*g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv) + (25/96)*(g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv)+g_rvcu(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu,K_mfu,V_mfv));
 
             %DeltaHv/deltaCv
-            J(node1+M,node1+M) = J(node1+M,node1+M)  + (-27/96)*g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
-            J(node2+M,node2+M) = J(node2+M,node2+M)  + (-27/96)*g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
-            J(node3+M,node3+M) = J(node3+M,node3+M)  + (-27/96)*g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv) + (25/96)*(g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv)+g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv));
+            J(node1+M,node1+M) = J(node1+M,node1+M)  + (-27/96)*g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu) + (25/96)*(g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu)+g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu)+g_rvcv(Ak,1,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu));
+            J(node2+M,node2+M) = J(node2+M,node2+M)  + (-27/96)*g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu) + (25/96)*(g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu)+g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu)+g_rvcv(Ak,2,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu));
+            J(node3+M,node3+M) = J(node3+M,node3+M)  + (-27/96)*g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/3,1/3,c_u,c_v,r_q,K_mu,K_mv,V_mu) + (25/96)*(g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu)+g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,1/5,3/5,c_u,c_v,r_q,K_mu,K_mv,V_mu)+g_rvcv(Ak,3,node1,node2,node3,x1,x2,x3,3/5,1/5,c_u,c_v,r_q,K_mu,K_mv,V_mu));
 
         end %Einde berekening Jacobiaan   
 

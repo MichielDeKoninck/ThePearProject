@@ -32,7 +32,6 @@ function [ K_add ] = K_adjustment_Hu( Ak,coordinatesMatrix,Vmu,Kmu,Kmv,Cuamb,Cva
     
     %Nieuwe implementatie: zuiver via mupad
     %Toch geen zuiver diagonale aanpassingen
-    
     Ke11 =  (1/60)*(3*x1 + x2 + x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
     
     Ke12 = (1/60)*(x1 + x2 + (1/2)*x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
@@ -44,6 +43,7 @@ function [ K_add ] = K_adjustment_Hu( Ak,coordinatesMatrix,Vmu,Kmu,Kmv,Cuamb,Cva
     Ke23 = (1/60)*((1/2)*x1 + x2 + x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
     
     Ke33 =  (1/60)*(x1 + x2 + 3*x3) * ((Vmu)/(((Kmu)*(1+Cvamb/Kmv))))*2*Ak;
+
 
     Ke21 = Ke12;
     Ke31 = Ke13;
