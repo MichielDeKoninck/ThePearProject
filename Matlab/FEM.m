@@ -8,7 +8,7 @@ close all
   
     
     %OPTIMAL CA CONDITIONS:
-    condition = 'orchard'
+    condition = 'optimalCA'
     switch condition 
         case 'orchard'
             %ORCHARD CONDITIONS:
@@ -39,7 +39,7 @@ close all
             %OPTIMAL CA CONDITIONS:
             T=T_stan+(-1);
             eta_u = 0.02;
-            eta_v =0.05;                   
+            eta_v =0.007;                   
         otherwise
             disp('No conditions specified: automatic ORCHARD!')
             %ORCHARD CONDITIONS:
@@ -78,21 +78,40 @@ close all
     Cu_amb = p_atm*eta_u/(R_g*T);
     Cv_amb = p_atm*eta_v/(R_g*T);
 
-    %% Points en indices laden
+   %% Points en indices laden
+    %____________POINTS
+    % DON'T FORGET TO ADD DIMENSIONS ON TOP OF TEXT FILE BEFORE USING IN
+    % FORTRAN
     example = matfile('save_p.mat');
     p = example.p;
     %example = matfile('save_p_smaller.mat');
     %p = example.p_smaller;
     
+    %save('Points.txt', 'p', '-ascii', '-double', '-tabs')
+    p_columnwise = p'; %Als kolomdoorgeven want fortran gaat zo inlezen
+    csvwrite('Points.txt',p_columnwise) %Integers
+    
+    %____________TRIANGLES
     example = matfile('save_t.mat');
     t = example.t;
     %example = matfile('save_t_smaller.mat');
     %t = example.t_smaller;
     
+    useful_t = t(1:3,:);
+ 
+    useful_t_columnwise = t(1:3,:)';
+    csvwrite('Triangles.txt',useful_t_columnwise) %Integers
+
+    %____________EDGES
     example = matfile('save_e.mat');
     e = example.e;
     %example = matfile('save_e_smaller.mat');
     %e = example.e_smaller;
+    
+    useful_e = e(1:2,:);
+
+    useful_e_columnwise = e(1:2,:)';
+    csvwrite('Edges.txt',useful_e_columnwise) %Integers
 
 
     %%  Creation of empty matrices
@@ -100,6 +119,11 @@ close all
     M=size(p,2); %number of nodes 
     T=size(t,2); %number of triangles
     E=size(e,2); %number of edges 
+    
+    fprintf 'Amount of nodes', M
+    fprintf 'Amount of Triangles', T
+    fprintf 'Amount of Edges', E
+
 
     % TODO: spaarse implementatie zal waarschijnlijk voor meer effici�ntie zorgen
     %Ku=sparse(M,M); %Onze K matrix, MxM (zal spaars worden ingevuld) 
@@ -220,7 +244,7 @@ close all
     title('initial c');
     %% Niet lineair stuk - Jacobiaan en F bepalen: Newton-Rhapson
     
-    iteration_bound = 10;
+    iteration_bound = 3;
 
     c = c0; %begin concentraties instellen
     %Alternative: try with starting zeros
