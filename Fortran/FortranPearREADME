@@ -1,0 +1,26 @@
+FORTRAN PEAR PROJECT INFO
+
+
+___________________TO RUN______________________________________________________ 
+
+Simply go to directory in terminal and execute: make
+Then run: ./FemPear
+Any output (c values for example) will be written into result.out from where it can be used to, for example, make plots
+
+
+_________________ DESCRIPTION OF USED MODULES _________________________________
+
+-FemPear: Hoofdcode, gebruikt mesh om het gevraagde op te lossen. Maakt daarbij gebruik van enkele hulpfuncties hieronder
+
+-inout2: Gegeven module uit Technisch Wetenschappelijke Software, gebruikt om de matrices in te lezen die in een textbestand zitten na genereren van mesh met matlab.
+
+-matrix_solve: Eigen module uit Technisch Wetenschappelijke Software, gebruikt om stelsels op te lossen van vorm Ax=b
+
+-hybrd: Minpack module die dient om niet-lineaire stelsels van vergelijkingen (zoals wij er een hebben) uit te werken naar een oplossing. Essentieel is wel dat er door de gebruiker een subroutine wordt voorzien die het op te lossen stelsel kan evalueren (fcn)
+
+-minpackfunctions: Hulpfuncties nodig voor hybrd
+
+-result.out: Bevat output van printstatements van programma.
+
+
+-pear mappen: verschillende peren (pear1 zeer grote mesh, pear2 iets gematigder)

@@ -222,13 +222,13 @@ time = cputime;
     cu_0 = c0(1:M);
     cv_0 = c0(M+1:2*M);
     
-%     figure('Name', 'Spy the K-matrix for initialisation');
-%     spy(K_initial);
-%     
-%     figure( 'Name', 'Initial C found after linearisation');
-%     subplot(3,1,1);
-%     plot(c0)
-%     subplot(3,1,2);
+    figure('Name', 'Spy the K-matrix for initialisation');
+    spy(K_initial);
+     
+    figure( 'Name', 'Initial C found after linearisation');
+    subplot(3,1,1);
+    plot(c0)
+   subplot(3,1,2);
 %     %pdeplot(p,e,t,'XYData',Cu,'ZData',Cu,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
 %     pdeplot(p,e,t,'XYData',cu_0, 'colormap','jet','Title', 'C_u');
 %     subplot(3,1,3);
@@ -321,10 +321,16 @@ time = cputime;
         end
     end
     cpu_time = cputime-time;
-    finite
-%     figure()
-%     spy(J)
-%     title('spy Jacobian') 
+    finite_difference_jacobian = jacobian(K_u,K_v,F_u,F_v,c0);
+    
+    figure()
+    spy(J)
+    title('Spy Jacobian') 
+     
+         
+    figure()
+    spy(finite_difference_jacobian)
+    title('Spy Finite Difference Jacobian') 
 
     %% Plot 
     %Plot for initial values

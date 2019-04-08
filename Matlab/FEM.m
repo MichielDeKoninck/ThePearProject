@@ -185,14 +185,14 @@ time = cputime;
     Cu=c(1:M);
     Cv=c(M+1:2*M);
     
-%     figure('NumberTitle', 'off', 'Name', 'Check1: c found from simplified stationary system');
-%     subplot(3,1,1);
-%     plot(c)
-%     subplot(3,1,2);
-%     %pdeplot(p,e,t,'XYData',Cu,'ZData',Cu,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
+     figure('NumberTitle', 'off', 'Name', 'Check1: c found from simplified stationary system');
+     subplot(3,1,1);
+     plot(c)
+     subplot(3,1,2);
+     pdeplot(p,e,t,'XYData',Cu,'ZData',Cu,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
 %     pdeplot(p,e,t,'XYData',Cu, 'colormap','jet','Title', 'C_u');
-%     subplot(3,1,3);
-%     %pdeplot(p,e,t,'XYData',Cv,'ZData',Cv,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_v');
+     subplot(3,1,3);
+     pdeplot(p,e,t,'XYData',Cv,'ZData',Cv,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_v');
 %     pdeplot(p,e,t,'XYData',Cv, 'colormap','jet','Title', 'C_v')
 
     %Ziet er wel degelijk uit (moet niet exact zijn want de randvoorwaarden zijn convectief)  
@@ -222,18 +222,18 @@ time = cputime;
     cu_0 = c0(1:M);
     cv_0 = c0(M+1:2*M);
     
-%     figure('Name', 'Spy the K-matrix for initialisation');
-%     spy(K_initial);
-%     
-%     figure( 'Name', 'Initial C found after linearisation');
-%     subplot(3,1,1);
-%     plot(c0)
-%     subplot(3,1,2);
-%     %pdeplot(p,e,t,'XYData',Cu,'ZData',Cu,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
-%     pdeplot(p,e,t,'XYData',cu_0, 'colormap','jet','Title', 'C_u');
-%     subplot(3,1,3);
-%     %pdeplot(p,e,t,'XYData',Cv,'ZData',Cv,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_v');
-%     pdeplot(p,e,t,'XYData',cv_0, 'colormap','jet','Title', 'C_v')
+    figure('Name', 'Spy the K-matrix for initialisation');
+    spy(K_initial);
+     
+    figure( 'Name', 'Initial C found after linearisation');
+    subplot(3,1,1);
+    plot(c0)
+    subplot(3,1,2);
+    pdeplot(p,e,t,'XYData',cu_0,'ZData',cu_0,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_u');
+    %pdeplot(p,e,t,'XYData',cu_0, 'colormap','jet','Title', 'C_u');
+    subplot(3,1,3);
+    pdeplot(p,e,t,'XYData',cv_0,'ZData',cv_0,'FaceAlpha',0.5,'ColorMap','jet','Mesh','on', 'Title', 'C_v');
+    %pdeplot(p,e,t,'XYData',cv_0, 'colormap','jet','Title', 'C_v')
 
     c_u=c0(1:M);
     c_v=c0(M+1:2*M);
@@ -314,23 +314,23 @@ time = cputime;
         c=c-step;
         c_u=c(1:M); %update c_u value
         c_v=c(M+1:2*M);
-        disp(norm(step))
+        %disp(norm(step))
         
         if norm(step)<(10^-6)
             break
         end
     end
     cpu_time = cputime-time;
-    finite_difference_jacobian = jacobian(K_u,K_v,F_u,F_v,c0);
+    %Jacobian related plots
+    %finite_difference_jacobian = jacobian(K_u,K_v,F_u,F_v,c0);
     
-    figure()
-    spy(J)
-    title('Spy Jacobian') 
-     
-         
-    figure()
-    spy(finite_difference_jacobian)
-    title('Spy Finite Difference Jacobian') 
+    %figure()
+    %spy(J)
+    %title('Spy Jacobian') 
+        
+    %figure()
+    %spy(finite_difference_jacobian)
+    %title('Spy Finite Difference Jacobian') 
 
     %% Plot 
     %Plot for initial values
