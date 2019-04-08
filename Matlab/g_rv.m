@@ -12,23 +12,3 @@ function [g] = g_rv(Ak,phi_nr,node1,node2,node3,x1,x2,x3,ksi,eta,c_u,c_v,r_q,K_m
     g = (-r)*r_q*r_u*phi*2*Ak - r*r_v_const*phi*2*Ak;
     
 end
-
-% 
-% function r = frv(n1, n2, n3, eta, ksi, n_phi)
-% global nb_vertices
-% global c
-% global ve
-% global Vmu
-% global Kmu
-% global Kmv
-% global Kmfu
-% global rq
-% global Vmfv
-% phi_list = [1-eta-ksi, ksi, eta];
-% cv = c(n1+nb_vertices)*(1-ksi-eta) + c(n2+nb_vertices)*ksi + c(n3+nb_vertices)*eta;
-% cu = c(n1)*(1-ksi-eta) + c(n2)*ksi + c(n3)*eta;
-% phi = phi_list(n_phi);
-% B = (ve(n2,1)*ve(n3,2) + ve(n1,1)*ve(n2,2) + ve(n3,1)*ve(n1,2) - ve(n2,1)*ve(n1,2) - ve(n3,1)*ve(n2,2)- ve(n1,1)*ve(n3,2));
-% rrv = rq*Vmu*cu/((1+cv/Kmv)*(Kmu+cu))+Vmfv/(1+cu/Kmfu);
-% r = (ve(n1,1)*(1-eta-ksi)+ve(n2,1)*ksi+ve(n3,1)*eta)*rrv*phi*B;
-% end

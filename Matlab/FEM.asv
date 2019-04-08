@@ -321,16 +321,10 @@ time = cputime;
         end
     end
     cpu_time = cputime-time;
-    finite_difference_jacobian = jacobian(K_u,K_v,F_u,F_v,c0);
-    
-    figure()
-    spy(J)
-    title('Spy Jacobian') 
-     
-         
-    figure()
-    spy(finite_difference_jacobian)
-    title('Spy Finite Difference Jacobian') 
+    finite
+%     figure()
+%     spy(J)
+%     title('spy Jacobian') 
 
     %% Plot 
     %Plot for initial values
