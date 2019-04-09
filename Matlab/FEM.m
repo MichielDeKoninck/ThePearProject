@@ -1,14 +1,14 @@
 %Finite-element method implementation
-clear
-close all
-%function FEM(condition)
-time = cputime;
+%clear
+%close all
+function FEM(condition)
+%time = cputime;
     %% Constants & Condition cases
     T_ref=293.15;
     T_stan = 273.15;
   
     %OPTIMAL CA CONDITIONS:
-    condition = 'optimalCA'
+    %condition = 'optimalCA'
     switch condition 
         case 'orchard'
             %ORCHARD CONDITIONS:
@@ -41,11 +41,11 @@ time = cputime;
             eta_u = 0.02;
             eta_v =0.007;                   
         otherwise
-            disp('No conditions specified: automatic ORCHARD!')
-            %ORCHARD CONDITIONS:
-            Temp=T_stan+25;
-            eta_u = 0.208;
-            eta_v =0.0004;
+            disp('No conditions specified: automatic OptimalCA!')
+           %OPTIMAL CA CONDITIONS:
+            Temp=T_stan+(-1);
+            eta_u = 0.02;
+            eta_v =0.007;
     end
     
     %DIFFUSIVITIES
@@ -320,7 +320,7 @@ time = cputime;
             break
         end
     end
-    cpu_time = cputime-time;
+    %cpu_time = cputime-time;
     %Jacobian related plots
     %finite_difference_jacobian = jacobian(K_u,K_v,F_u,F_v,c0);
     
@@ -342,4 +342,4 @@ time = cputime;
 
     PearPlot(p,e,t,c_u,c_v)
 
-%end voor als het effectief een functie is
+end %Can turn the function of to be able to see fields in workspace
